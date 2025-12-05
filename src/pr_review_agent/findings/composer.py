@@ -82,8 +82,4 @@ def _render_finding(f: Finding) -> str:
 
 
 def _render_footer(cost_usd: float, count: int) -> str:
-    return (
-        "---\n"
-        f"_{count} finding{'s' if count != 1 else ''} • "
-        f"run cost: ${cost_usd:.4f}_"
-    )
+    return "---\n" f"_{count} finding{'s' if count != 1 else ''} • " f"run cost: ${cost_usd:.4f}_"
