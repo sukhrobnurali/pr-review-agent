@@ -52,3 +52,6 @@ Thumbs.db
 02_pr_review_agent_brief.md
 scripts/dev/commit-at.sh
 .pr-review-cache/
+
+# Editor/agent-local
+.claude/
