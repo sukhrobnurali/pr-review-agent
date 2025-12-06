@@ -6,7 +6,9 @@ from collections.abc import Iterable
 from pr_review_agent.state import FileChange, Hunk
 
 _DIFF_GIT = re.compile(r"^diff --git a/(?P<old>.+?) b/(?P<new>.+?)$")
-_HUNK = re.compile(r"^@@ -(?P<o_start>\d+)(?:,(?P<o_len>\d+))? \+(?P<n_start>\d+)(?:,(?P<n_len>\d+))? @@")
+_HUNK = re.compile(
+    r"^@@ -(?P<o_start>\d+)(?:,(?P<o_len>\d+))? \+(?P<n_start>\d+)(?:,(?P<n_len>\d+))? @@"
+)
 _RENAME_FROM = re.compile(r"^rename from (?P<path>.+)$")
 _RENAME_TO = re.compile(r"^rename to (?P<path>.+)$")
 _NEW_FILE = re.compile(r"^new file mode")
