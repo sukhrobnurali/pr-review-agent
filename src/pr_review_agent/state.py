@@ -1,10 +1,24 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from operator import add
+from typing import Annotated, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from pr_review_agent.findings import AgentName, Finding
+
+
+def merge_findings(
+    left: dict[AgentName, list[Finding]] | None,
+    right: dict[AgentName, list[Finding]] | None,
+) -> dict[AgentName, list[Finding]]:
+    out: dict[AgentName, list[Finding]] = dict(left or {})
+    out.update(right or {})
+    return out
+
+
+def add_floats(left: float | None, right: float | None) -> float:
+    return (left or 0.0) + (right or 0.0)
 
 
 class PRMetadata(BaseModel):
@@ -56,8 +70,8 @@ class ReviewState(TypedDict, total=False):
     diff: str
     files_changed: list[FileChange]
     selected_agents: list[AgentName]
-    findings: dict[AgentName, list[Finding]]
+    findings: Annotated[dict[AgentName, list[Finding]], merge_findings]
+    cost_usd: Annotated[float, add_floats]
+    errors: Annotated[list[AgentError], add]
     aggregated: list[Finding]
     final_comment: str
-    cost_usd: float
-    errors: list[AgentError]
