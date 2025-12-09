@@ -1,0 +1,27 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run pr-review-agent
+        uses: sukhrobnurali/pr-review-agent@v0.1.0
+        with:
+          provider: openai
+          model: gpt-4o-mini
+          api_key: ${{ secrets.OPENAI_API_KEY }}
+          # config_path: .pr-review.yml  # optional, picked up automatically if present
+          # only: security,quality       # optional subset
+          # dry_run: 'true'              # log instead of posting
