@@ -1,0 +1,43 @@
+name: PR Review Agent
+description: Multi-agent specialist reviewer (security, performance, tests, quality) for pull requests.
+author: Sukhrob Nurali
+branding:
+  icon: git-pull-request
+  color: purple
+
+inputs:
+  github_token:
+    description: GitHub token used to fetch the PR diff and post the review comment.
+    required: false
+    default: ${{ github.token }}
+  provider:
+    description: LLM provider (openai or anthropic). Overrides .pr-review.yml.
+    required: false
+  model:
+    description: Default model id (e.g. gpt-4o-mini, claude-haiku-4). Overrides .pr-review.yml.
+    required: false
+  api_key:
+    description: LLM API key. Falls back to OPENAI_API_KEY / ANTHROPIC_API_KEY env.
+    required: false
+  config_path:
+    description: Path to .pr-review.yml inside the checkout. Defaults to ./.pr-review.yml.
+    required: false
+  only:
+    description: Comma-separated subset of agents to run (e.g. "security,quality").
+    required: false
+  dry_run:
+    description: If true, log the review comment instead of posting it.
+    required: false
+    default: 'false'
+
+runs:
+  using: docker
+  image: action/Dockerfile
+  env:
+    INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+    INPUT_PROVIDER: ${{ inputs.provider }}
+    INPUT_MODEL: ${{ inputs.model }}
+    INPUT_API_KEY: ${{ inputs.api_key }}
+    INPUT_CONFIG_PATH: ${{ inputs.config_path }}
+    INPUT_ONLY: ${{ inputs.only }}
+    INPUT_DRY_RUN: ${{ inputs.dry_run }}
