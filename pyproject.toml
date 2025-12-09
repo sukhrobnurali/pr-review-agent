@@ -70,6 +70,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["N802", "N806"]
+"src/pr_review_agent/cli.py" = ["B008", "UP007"]
 
 [tool.mypy]
 python_version = "3.12"
