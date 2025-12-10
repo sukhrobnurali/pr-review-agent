@@ -12,12 +12,12 @@ from pr_review_agent.state import AgentError, ReviewState
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from pr_review_agent.agents.base import SpecialistAgent
+    from pr_review_agent.agents.base import AgentRunnable
 
 _log = structlog.get_logger(__name__)
 
 
-def build_graph(agents: dict[AgentName, SpecialistAgent]) -> Any:
+def build_graph(agents: dict[AgentName, AgentRunnable]) -> Any:
     async def select_node(state: ReviewState) -> dict[str, Any]:
         selected = select_specialists(
             state.get("files_changed", []),
@@ -28,7 +28,7 @@ def build_graph(agents: dict[AgentName, SpecialistAgent]) -> Any:
         return {"selected_agents": selected}
 
     def make_agent_node(
-        name: AgentName, agent: SpecialistAgent
+        name: AgentName, agent: AgentRunnable
     ) -> Callable[[ReviewState], Awaitable[dict[str, Any]]]:
         async def node(state: ReviewState) -> dict[str, Any]:
             if name not in state.get("selected_agents", []):

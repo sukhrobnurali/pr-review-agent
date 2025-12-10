@@ -2,19 +2,17 @@ from __future__ import annotations
 
 import json
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, ValidationError
 
 from pr_review_agent.findings import AgentName, FileLocation, Finding, Severity
 from pr_review_agent.models.pricing import compute_cost_usd
-from pr_review_agent.state import PRMetadata
+from pr_review_agent.state import FileChange, PRMetadata
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
-
-    from pr_review_agent.state import FileChange
 
 
 class _RawFinding(BaseModel):
@@ -38,8 +36,27 @@ class AgentResult(BaseModel):
     completion_tokens: int
 
 
+@runtime_checkable
+class AgentRunnable(Protocol):
+    """Anything the graph can dispatch as a specialist node.
+
+    Implemented directly by `SpecialistAgent` and by the cache wrapper.
+    """
+
+    agent_name: AgentName
+
+    async def run(
+        self,
+        pr: PRMetadata,
+        files_changed: list[FileChange],
+        diff: str,
+    ) -> AgentResult: ...
+
+
 class SpecialistAgent:
     agent_name: AgentName
+    prompt_name: str
+    model_id: str
 
     def __init__(
         self,
@@ -49,9 +66,9 @@ class SpecialistAgent:
         model_id: str,
     ) -> None:
         self.agent_name = agent_name
+        self.prompt_name = prompt_name
+        self.model_id = model_id
         self._llm = llm
-        self._prompt_name = prompt_name
-        self._model_id = model_id
 
     async def run(
         self,
@@ -62,7 +79,7 @@ class SpecialistAgent:
         from pr_review_agent.agents.prompts import render_prompt
 
         prompt = render_prompt(
-            self._prompt_name,
+            self.prompt_name,
             variables={
                 "pr_title": pr.title,
                 "pr_author": pr.author or "unknown",
@@ -74,7 +91,7 @@ class SpecialistAgent:
         usage = _extract_usage(response)
         prompt_tokens = usage.get("input_tokens", 0)
         completion_tokens = usage.get("output_tokens", 0)
-        cost = compute_cost_usd(self._model_id, prompt_tokens, completion_tokens)
+        cost = compute_cost_usd(self.model_id, prompt_tokens, completion_tokens)
         findings = self._parse(_message_text(response))
         return AgentResult(
             findings=findings,

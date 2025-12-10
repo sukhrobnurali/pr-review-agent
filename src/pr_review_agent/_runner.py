@@ -1,6 +1,6 @@
 """Internal orchestration shared by CLI and Action entrypoints.
 
-Public surface stabilizes as `pr_review_agent.api` on Day 6.
+Public surface lives in `pr_review_agent.api`.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from pr_review_agent.agents import (
     build_security_agent,
     build_tests_agent,
 )
+from pr_review_agent.cache import CachingAgent
 from pr_review_agent.findings import AgentName
 from pr_review_agent.graph import build_graph
 from pr_review_agent.models import ModelConfig, build_llm
@@ -25,7 +26,8 @@ if TYPE_CHECKING:
 
     from langchain_core.language_models import BaseChatModel
 
-    from pr_review_agent.agents.base import SpecialistAgent
+    from pr_review_agent.agents.base import AgentRunnable, SpecialistAgent
+    from pr_review_agent.cache import FileCache
     from pr_review_agent.config import Settings
 
 
@@ -47,9 +49,12 @@ _BUILDERS: dict[AgentName, Callable[[BaseChatModel, str], SpecialistAgent]] = {
 
 
 def build_agents_from_settings(
-    settings: Settings, *, api_key: str | None
-) -> dict[AgentName, SpecialistAgent]:
-    out: dict[AgentName, SpecialistAgent] = {}
+    settings: Settings,
+    *,
+    api_key: str | None,
+    cache: FileCache | None = None,
+) -> dict[AgentName, AgentRunnable]:
+    out: dict[AgentName, AgentRunnable] = {}
     for name in settings.agents.enabled:
         model_id = settings.model_for(name)
         cfg = ModelConfig(
@@ -59,7 +64,8 @@ def build_agents_from_settings(
             base_url=settings.base_url,
         )
         llm = build_llm(cfg)
-        out[name] = _BUILDERS[name](llm, model_id)
+        inner = _BUILDERS[name](llm, model_id)
+        out[name] = CachingAgent(inner, cache) if cache is not None else inner
     return out
 
 
@@ -69,11 +75,12 @@ async def run_review(
     pr: PRMetadata,
     diff: str,
     api_key: str | None = None,
-    agents: dict[AgentName, SpecialistAgent] | None = None,
+    agents: dict[AgentName, AgentRunnable] | None = None,
+    cache: FileCache | None = None,
 ) -> ReviewOutcome:
     files = [f for f in parse_diff(diff) if settings.path_included(f.path)]
     if agents is None:
-        agents = build_agents_from_settings(settings, api_key=api_key)
+        agents = build_agents_from_settings(settings, api_key=api_key, cache=cache)
     graph = build_graph(agents)
     state: ReviewState = {
         "pr_metadata": pr,
