@@ -11,13 +11,13 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import os
-import re
 import sys
 from pathlib import Path
 
 import typer
 
 from pr_review_agent._runner import ReviewOutcome, run_review
+from pr_review_agent.api import parse_pr_ref
 from pr_review_agent.config import Settings, load_settings
 from pr_review_agent.findings import AgentName
 from pr_review_agent.reporting import post_or_update_review
@@ -26,17 +26,7 @@ from pr_review_agent.tools.github import GitHubClient
 
 app = typer.Typer(add_completion=False, no_args_is_help=True, help="Multi-agent PR reviewer")
 
-_PR_SHORT = re.compile(r"^([^/\s]+)/([^/#\s]+)#(\d+)$")
-_PR_URL = re.compile(r"^https?://github\.com/([^/\s]+)/([^/\s]+)/pull/(\d+)(?:[/?#].*)?$")
 _VALID_AGENTS: tuple[AgentName, ...] = ("quality", "tests", "performance", "security")
-
-
-def parse_pr_ref(ref: str) -> tuple[str, str, int]:
-    for pat in (_PR_SHORT, _PR_URL):
-        m = pat.match(ref.strip())
-        if m:
-            return m.group(1), m.group(2), int(m.group(3))
-    raise ValueError(f"expected 'owner/repo#NUMBER' or PR URL, got: {ref!r}")
 
 
 def _resolve_api_key(provider: str, override: str | None) -> str | None:

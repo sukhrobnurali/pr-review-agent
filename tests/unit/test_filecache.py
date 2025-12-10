@@ -46,9 +46,13 @@ def test_cache_miss_then_hit_round_trip(tmp_path: Path) -> None:
 
 
 def test_key_differs_per_dimension() -> None:
-    base = dict(
-        repo_id="o/r", blob_sha="abc", agent="quality", model="m", prompt_version="v1"
-    )
+    base = {
+        "repo_id": "o/r",
+        "blob_sha": "abc",
+        "agent": "quality",
+        "model": "m",
+        "prompt_version": "v1",
+    }
     base_key = cache_key(**base)  # type: ignore[arg-type]
     for field, alt in {
         "repo_id": "o/r2",
@@ -57,7 +61,7 @@ def test_key_differs_per_dimension() -> None:
         "model": "m2",
         "prompt_version": "v2",
     }.items():
-        differing = dict(base) | {field: alt}
+        differing = base | {field: alt}
         assert cache_key(**differing) != base_key, field  # type: ignore[arg-type]
 
 
