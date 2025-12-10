@@ -1,0 +1,38 @@
+diff --git a/src/billing/discounts.py b/src/billing/discounts.py
+new file mode 100644
+--- /dev/null
++++ b/src/billing/discounts.py
+@@ -0,0 +1,28 @@
++from decimal import Decimal
++from datetime import date
++
++def percent_off(amount: Decimal, percent: Decimal) -> Decimal:
++    if percent < 0 or percent > 100:
++        raise ValueError("percent out of range")
++    return amount * (Decimal(100) - percent) / Decimal(100)
++
++def stacked_discount(amount: Decimal, percents: list[Decimal]) -> Decimal:
++    out = amount
++    for p in percents:
++        out = percent_off(out, p)
++    return out
++
++def loyalty_bonus(years: int) -> Decimal:
++    if years < 1:
++        return Decimal(0)
++    if years < 3:
++        return Decimal(5)
++    if years < 7:
++        return Decimal(10)
++    return Decimal(15)
++
++def is_seasonal(today: date | None = None) -> bool:
++    today = today or date.today()
++    return today.month in (11, 12)
++
+diff --git a/src/billing/__init__.py b/src/billing/__init__.py
+--- a/src/billing/__init__.py
++++ b/src/billing/__init__.py
+@@ -1 +1,2 @@
+ from .invoice import generate
++from .discounts import percent_off, stacked_discount, loyalty_bonus, is_seasonal

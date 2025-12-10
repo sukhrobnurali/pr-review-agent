@@ -1,0 +1,21 @@
+findings:
+  - severity: critical
+    file: src/api/sessions.py
+    line: 9
+    title: "pickle.loads on user-controlled input enables RCE"
+    explanation: |
+      The endpoint base64-decodes a request body and passes the bytes to
+      pickle.loads. Any attacker who can hit this endpoint can deserialize
+      arbitrary Python objects, including __reduce__ payloads that execute
+      code. This is a textbook insecure deserialization (CWE-502).
+    suggestion: |
+      Replace the pickle round-trip with a JSON schema (or msgpack with a
+      whitelist), and reject sessions that don't match the expected shape.
+  - severity: high
+    file: src/api/sessions.py
+    line: 13
+    title: "blind write to SESSIONS without auth check"
+    explanation: |
+      restore_session writes obj["sid"] into SESSIONS unconditionally; an
+      attacker can overwrite any other user's session by guessing or
+      enumerating sids.

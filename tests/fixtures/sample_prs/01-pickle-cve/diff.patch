@@ -1,0 +1,21 @@
+diff --git a/src/api/sessions.py b/src/api/sessions.py
+--- a/src/api/sessions.py
++++ b/src/api/sessions.py
+@@ -1,8 +1,15 @@
+ import base64
++import pickle
+ from flask import request, jsonify
+
+ from .store import SESSIONS
+
+ def restore_session():
+-    sid = request.json["sid"]
+-    return jsonify(SESSIONS.get(sid))
++    payload = request.json["session"]
++    raw = base64.b64decode(payload)
++    obj = pickle.loads(raw)
++    SESSIONS[obj["sid"]] = obj
++    return jsonify({"ok": True})
++
++def export_session(sid):
++    return base64.b64encode(pickle.dumps(SESSIONS[sid])).decode()

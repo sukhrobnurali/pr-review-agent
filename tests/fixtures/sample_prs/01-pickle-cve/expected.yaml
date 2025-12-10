@@ -1,0 +1,7 @@
+title: "session restore endpoint deserializes user-supplied pickle"
+must_catch:
+  - severity_min: high
+    file_pattern: "sessions.py"
+    title_keywords: ["pickle", "deserial"]
+must_not_catch:
+  - title_keywords: ["formatting", "naming convention", "blank line"]

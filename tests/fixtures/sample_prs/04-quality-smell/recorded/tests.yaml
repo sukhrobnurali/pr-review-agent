@@ -1,0 +1,9 @@
+findings:
+  - severity: low
+    file: src/reports/builder.py
+    line: 22
+    title: "behavioural change in build_report not covered"
+    explanation: |
+      The new code adds a 'floor at zero' pass at the end that wasn't
+      there before. If existing tests don't pin this, a regression test
+      should land alongside the change.

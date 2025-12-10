@@ -1,0 +1,55 @@
+diff --git a/src/reports/builder.py b/src/reports/builder.py
+--- a/src/reports/builder.py
++++ b/src/reports/builder.py
+@@ -1,28 +1,42 @@
+ import json
++import os
++import sys
+
+ from .data import fetch_rows
+
+
+ def build_report(start, end, kind="weekly"):
+-    rows = fetch_rows(start, end)
+-    if kind == "weekly":
+-        return summarize(rows, "week")
+-    return summarize(rows, "month")
+-
+-
+-def summarize(rows, bucket):
+-    out = {}
+-    for row in rows:
+-        key = row[bucket]
+-        out.setdefault(key, 0)
+-        out[key] += row["value"]
+-    return out
++    r = fetch_rows(start, end)
++    x = {}
++    if kind == "weekly":
++        b = "week"
++    else:
++        b = "month"
++    for i in range(len(r)):
++        k = r[i][b]
++        if k not in x:
++            x[k] = 0
++        x[k] = x[k] + r[i]["value"]
++    final = {}
++    for k in x:
++        if x[k] > 0:
++            final[k] = x[k]
++        else:
++            final[k] = 0
++    return final
+
+
+ def export(report, path):
+     with open(path, "w") as f:
+         json.dump(report, f)
++
++def export_v2(report, path):
++    with open(path, "w") as f:
++        json.dump(report, f)
++
++def deprecated_helper():
++    pass

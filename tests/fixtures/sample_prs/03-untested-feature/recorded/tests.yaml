@@ -1,0 +1,23 @@
+findings:
+  - severity: high
+    file: src/billing/discounts.py
+    line: 4
+    title: "new public functions ship with no test coverage"
+    explanation: |
+      This PR adds four exported helpers (percent_off, stacked_discount,
+      loyalty_bonus, is_seasonal) that all do real arithmetic or branching
+      and none are exercised by a test. percent_off has a guarded range,
+      stacked_discount has loop semantics worth pinning, and loyalty_bonus
+      is a chain of thresholds — exactly the cases tests catch best.
+    suggestion: |
+      Add a tests/unit/test_discounts.py covering: percent_off range guard,
+      stacked_discount applying in order (not summed), loyalty_bonus at
+      every threshold boundary, and is_seasonal across months.
+  - severity: low
+    file: src/billing/discounts.py
+    line: 26
+    title: "is_seasonal couples to today() — pin via injected date in tests"
+    explanation: |
+      The function takes an optional date so it can be tested. Add an
+      explicit test that passes a fixed date in November/December and one
+      outside that range; otherwise the dependency on today() will rot.

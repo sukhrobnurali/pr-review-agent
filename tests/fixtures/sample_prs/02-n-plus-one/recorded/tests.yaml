@@ -1,0 +1,9 @@
+findings:
+  - severity: low
+    file: src/api/orders.py
+    line: 22
+    title: "no test for total_for"
+    explanation: |
+      total_for is a brand-new helper with arithmetic + lazy fetching;
+      worth a small unit test exercising both single- and multi-line
+      orders.

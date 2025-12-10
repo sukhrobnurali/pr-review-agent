@@ -1,0 +1,9 @@
+findings:
+  - severity: low
+    file: src/api/orders.py
+    line: 14
+    title: "single-letter loop variable o reads worse than the previous orders/lines"
+    explanation: |
+      The new code uses 'o' for the order in the outer loop. Tiny scope,
+      but the surrounding code reads order.id; spelling it out costs
+      nothing.

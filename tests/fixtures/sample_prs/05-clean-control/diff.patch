@@ -1,0 +1,33 @@
+diff --git a/src/utils/strings.py b/src/utils/strings.py
+--- a/src/utils/strings.py
++++ b/src/utils/strings.py
+@@ -8,3 +8,9 @@ def slugify(value: str) -> str:
+     value = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+     return value or "untitled"
+
+
++def truncate(value: str, limit: int) -> str:
++    """Return value clipped to limit characters, with a trailing ellipsis."""
++    if limit <= 0 or len(value) <= limit:
++        return value
++    return value[: max(limit - 1, 1)] + "…"
++
+diff --git a/tests/unit/test_strings.py b/tests/unit/test_strings.py
+--- a/tests/unit/test_strings.py
++++ b/tests/unit/test_strings.py
+@@ -10,3 +10,15 @@ def test_slugify_strips_punctuation():
+ def test_slugify_falls_back_to_untitled():
+     assert slugify("///") == "untitled"
+
+
++def test_truncate_returns_input_when_short_enough():
++    assert truncate("hi", 10) == "hi"
++
++
++def test_truncate_clips_with_ellipsis():
++    assert truncate("abcdef", 4) == "abc…"
++
++
++def test_truncate_handles_zero_limit():
++    assert truncate("anything", 0) == "anything"
++

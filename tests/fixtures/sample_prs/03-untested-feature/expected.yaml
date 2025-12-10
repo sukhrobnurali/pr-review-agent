@@ -1,0 +1,7 @@
+title: "new billing module ships with no tests"
+must_catch:
+  - severity_min: medium
+    file_pattern: "discounts.py"
+    title_keywords: ["test", "untested", "coverage"]
+must_not_catch:
+  - title_keywords: ["formatting", "naming convention"]

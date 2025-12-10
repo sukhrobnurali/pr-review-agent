@@ -1,0 +1,36 @@
+findings:
+  - severity: high
+    file: src/reports/builder.py
+    line: 8
+    title: "build_report rewritten with cryptic single-letter names (r, x, b, k)"
+    explanation: |
+      The previous version used 'rows', 'bucket', 'key' — the new code
+      replaces all of them with single letters and extends the function
+      with a second pass that does nothing meaningful (max(0, x[k]) when
+      x[k] is already a sum of value, but value can be negative so the
+      semantics change without comment). Hard to follow at the diff level.
+    suggestion: |
+      Restore the descriptive names. If the floor-at-zero is intentional,
+      add a comment and a test.
+  - severity: medium
+    file: src/reports/builder.py
+    line: 41
+    title: "export_v2 is a verbatim duplicate of export"
+    explanation: |
+      export_v2 has the same body as export. Either delete the new
+      function or, if it's a stepping stone, mark with a TODO that names
+      the planned divergence.
+  - severity: medium
+    file: src/reports/builder.py
+    line: 45
+    title: "deprecated_helper added empty"
+    explanation: |
+      Empty stub function with name 'deprecated_helper' and no body. If it
+      was placed for a follow-up PR, raise NotImplementedError to make it
+      loud; otherwise drop it.
+  - severity: low
+    file: src/reports/builder.py
+    line: 2
+    title: "unused imports os and sys"
+    explanation: |
+      Two new top-level imports (os, sys) are added but never referenced.

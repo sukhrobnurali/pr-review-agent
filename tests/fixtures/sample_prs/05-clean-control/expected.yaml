@@ -1,0 +1,4 @@
+title: "small clean addition with tests; nothing to flag"
+must_catch: []
+must_not_catch:
+  - severity_min: medium

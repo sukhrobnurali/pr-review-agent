@@ -1,0 +1,20 @@
+findings:
+  - severity: high
+    file: src/api/orders.py
+    line: 17
+    title: "n+1 query: Item.query.get inside per-line loop"
+    explanation: |
+      The previous version used joinedload to fetch orders + items in one
+      round-trip. The new code issues an individual Item.query.get for
+      every line in every order, which is the canonical N+1 problem. With
+      a customer who has 50 orders of 10 items each, this is 501 queries.
+    suggestion: |
+      Restore the joinedload(Order.items) eager load (or fetch all
+      relevant Item rows in a single Item.query.filter(id.in_(...))).
+  - severity: medium
+    file: src/api/orders.py
+    line: 22
+    title: "total_for repeats the same per-row Item.query.get pattern"
+    explanation: |
+      total_for has the same shape: one Item.query.get per line. Either
+      take a preloaded items dict as a parameter or batch-fetch up front.

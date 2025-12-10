@@ -1,0 +1,25 @@
+diff --git a/src/api/orders.py b/src/api/orders.py
+--- a/src/api/orders.py
++++ b/src/api/orders.py
+@@ -10,11 +10,15 @@ from .models import Order, Customer, Item
+
+
+ def order_summary(customer_id):
+-    return (
+-        Order.query
+-        .filter_by(customer_id=customer_id)
+-        .options(joinedload(Order.items))
+-        .all()
+-    )
++    orders = Order.query.filter_by(customer_id=customer_id).all()
++    out = []
++    for o in orders:
++        items = []
++        for line in o.lines:
++            item = Item.query.get(line.item_id)
++            items.append({"sku": item.sku, "qty": line.qty})
++        out.append({"id": o.id, "items": items})
++    return out
++
++def total_for(order):
++    return sum(Item.query.get(line.item_id).price * line.qty for line in order.lines)

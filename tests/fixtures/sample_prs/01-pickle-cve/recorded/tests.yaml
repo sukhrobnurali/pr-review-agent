@@ -1,0 +1,9 @@
+findings:
+  - severity: medium
+    file: src/api/sessions.py
+    line: 7
+    title: "no test exercises the new restore_session route"
+    explanation: |
+      A new HTTP-facing endpoint with deserialization logic ships without
+      a test. At minimum a happy-path and a malformed-payload test should
+      land alongside it.

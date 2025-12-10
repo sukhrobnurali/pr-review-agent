@@ -1,0 +1,10 @@
+title: "report builder regressed: cryptic names + dead code + duplicate exporter"
+must_catch:
+  - severity_min: low
+    file_pattern: "builder.py"
+    title_keywords: ["naming", "single-letter", "rename", "readable"]
+  - severity_min: low
+    file_pattern: "builder.py"
+    title_keywords: ["dead code", "unused", "duplicate", "deprecated"]
+must_not_catch:
+  - title_keywords: ["sql injection", "n+1"]

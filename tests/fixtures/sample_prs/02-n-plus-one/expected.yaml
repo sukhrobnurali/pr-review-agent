@@ -1,0 +1,7 @@
+title: "order_summary regresses to N+1 query pattern"
+must_catch:
+  - severity_min: medium
+    file_pattern: "orders.py"
+    title_keywords: ["n+1", "n + 1", "per-item", "per row", "per-row"]
+must_not_catch:
+  - title_keywords: ["typo", "naming", "blank line", "import order"]
