@@ -126,6 +126,35 @@ def test_review_missing_api_key_errors(
     assert "api key" in result.output.lower()
 
 
+def test_review_cache_dir_flag_passes_filecache_to_runner(
+    tmp_path: Path, fake_outcome: ReviewOutcome, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    diff = _diff_file(tmp_path)
+    captured: dict[str, Any] = {}
+
+    async def fake_run(**kwargs: Any) -> ReviewOutcome:
+        captured["cache"] = kwargs.get("cache")
+        return fake_outcome
+
+    with patch("pr_review_agent.cli.run_review", new=fake_run):
+        result = runner.invoke(
+            app,
+            [
+                "review",
+                "--diff-file",
+                str(diff),
+                "--dry-run",
+                "--cache-dir",
+                str(tmp_path / "cache"),
+            ],
+        )
+    assert result.exit_code == 0, result.output
+    cache = captured["cache"]
+    assert cache is not None
+    assert cache.root == tmp_path / "cache"
+
+
 def test_review_uses_config_file(
     tmp_path: Path, fake_outcome: ReviewOutcome, monkeypatch: pytest.MonkeyPatch
 ) -> None:

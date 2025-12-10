@@ -29,6 +29,9 @@ inputs:
     description: If true, log the review comment instead of posting it.
     required: false
     default: 'false'
+  cache_dir:
+    description: Path to a directory to use as on-disk agent-result cache. If unset, caching is off.
+    required: false
 
 runs:
   using: docker
@@ -41,3 +44,4 @@ runs:
     INPUT_CONFIG_PATH: ${{ inputs.config_path }}
     INPUT_ONLY: ${{ inputs.only }}
     INPUT_DRY_RUN: ${{ inputs.dry_run }}
+    INPUT_CACHE_DIR: ${{ inputs.cache_dir }}

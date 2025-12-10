@@ -17,6 +17,7 @@ from typing import Any
 import structlog
 
 from pr_review_agent._runner import run_review
+from pr_review_agent.cache import FileCache
 from pr_review_agent.config import Settings, load_settings
 from pr_review_agent.findings import AgentName
 from pr_review_agent.reporting import post_or_update_review
@@ -130,13 +131,17 @@ async def main_async() -> int:
         return 2
 
     dry_run = _bool_input("dry_run")
+    cache_dir = _input("cache_dir")
+    cache = FileCache(cache_dir) if cache_dir else None
     client = GitHubClient.from_token(gh_token)
 
     _log.info("review_start", owner=owner, repo=repo, number=number, dry_run=dry_run)
     pr = await client.fetch_pr(owner, repo, number)
     diff = await client.fetch_diff(owner, repo, number)
 
-    outcome = await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key)
+    outcome = await run_review(
+        settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache
+    )
 
     posted_id = await post_or_update_review(
         client,

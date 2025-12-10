@@ -18,6 +18,7 @@ import typer
 
 from pr_review_agent._runner import ReviewOutcome, run_review
 from pr_review_agent.api import parse_pr_ref
+from pr_review_agent.cache import FileCache
 from pr_review_agent.config import Settings, load_settings
 from pr_review_agent.findings import AgentName
 from pr_review_agent.reporting import post_or_update_review
@@ -81,10 +82,14 @@ def review(
     ),
     title: str = typer.Option("local diff", "--title", help="PR title (with --diff-file)"),
     dry_run: bool = typer.Option(False, "--dry-run", help="print comment instead of posting"),
+    cache_dir: Path | None = typer.Option(
+        None, "--cache-dir", help="enable on-disk cache rooted at this path"
+    ),
 ) -> None:
     """Review a pull request."""
     settings = load_settings(config or _default_config_path())
     settings = _apply_overrides(settings, provider=provider, model=model, only=only)
+    cache = FileCache(cache_dir) if cache_dir else None
 
     resolved_key = _resolve_api_key(settings.provider, api_key)
     if resolved_key is None:
@@ -97,7 +102,7 @@ def review(
 
     if diff_file is not None:
         outcome = asyncio.run(
-            _review_local_diff(diff_file, title, settings, resolved_key)
+            _review_local_diff(diff_file, title, settings, resolved_key, cache)
         )
         _print_outcome(outcome, dry_run=True, posted_id=None)
         return
@@ -117,13 +122,18 @@ def review(
             api_key=resolved_key,
             gh_token=gh_token,
             dry_run=dry_run,
+            cache=cache,
         )
     )
     _print_outcome(outcome, dry_run=dry_run, posted_id=posted_id)
 
 
 async def _review_local_diff(
-    diff_path: Path, title: str, settings: Settings, api_key: str
+    diff_path: Path,
+    title: str,
+    settings: Settings,
+    api_key: str,
+    cache: FileCache | None,
 ) -> ReviewOutcome:
     diff = diff_path.read_text(encoding="utf-8")
     pr = PRMetadata(
@@ -134,7 +144,7 @@ async def _review_local_diff(
         head_sha="0" * 40,
         base_sha="0" * 40,
     )
-    return await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key)
+    return await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache)
 
 
 async def _review_real_pr(
@@ -146,11 +156,14 @@ async def _review_real_pr(
     api_key: str,
     gh_token: str | None,
     dry_run: bool,
+    cache: FileCache | None,
 ) -> tuple[int | None, ReviewOutcome]:
     client = GitHubClient.from_token(gh_token or "")
     pr = await client.fetch_pr(owner, repo, number)
     diff = await client.fetch_diff(owner, repo, number)
-    outcome = await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key)
+    outcome = await run_review(
+        settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache
+    )
     posted_id = await post_or_update_review(
         client,
         owner=owner,
