@@ -30,27 +30,22 @@ pytest -m eval -s
 
 The `-s` keeps the per-fixture report visible. The benchmark is also part of the default suite, so `pytest` runs it too.
 
-The test asserts a hard floor (precision ≥ 0.5, recall ≥ 0.5) and warns at a soft floor (< 0.85) — it never silently passes through a regression, but a single fixture authoring mistake doesn't break CI.
+The test asserts a smoke-level invariant — every fixture loads, runs through the graph, and produces output. It does **not** assert precision/recall floors, because in v0.1.0 the recorded findings are hand-authored alongside the rules they score against, so a floor would be tautological.
 
-## v0.1.0 baseline
+## v0.1.0 status: framework, not measurement
 
-```
-fixture                       emitted    recall     noise
-01-pickle-cve                       3      1.00      0.00
-02-n-plus-one                       4      1.00      0.00
-03-untested-feature                 2      1.00      0.00
-04-quality-smell                    5      1.00      0.00
-05-clean-control                    0      1.00      0.00
+What ships today:
 
-overall precision=1.000 recall=1.000 noise=0.000
-```
+- 5 labelled fixtures covering the four specialist concerns plus a clean control.
+- `RecordedAgent` and the rule-matching machinery, so adding a fixture is a YAML drop with no Python changes.
+- A graph integration that swaps in `RecordedAgent` without touching production code.
 
-These numbers come from running `pytest -m eval -s` against the v0.1.0 fixtures. Both `must_catch` and `must_not_catch` are tight enough to break if recordings drift.
+What does **not** ship today: a real measurement of reviewer skill. The recordings under `recorded/<agent>.yaml` were written by the same hand that wrote the `expected.yaml` rules, so any score they produce reflects authoring consistency rather than agent quality.
 
-The numbers are clean by construction — they reflect the framework working against curated recordings, not a generalised "reviewer skill" claim. Two extensions that bring them closer to that claim:
+Two paths bring real numbers in v0.2:
 
-1. **Replay against a real model.** Drop the `RecordedAgent`, point the eval at a real provider with cassettes, and re-record. The framework is unchanged; only the recording source moves. This is the work that backs ADR-0001 (`docs/decisions/0001-multi-agent-architecture.md`).
-2. **Adversarial fixtures.** Add diffs that *look* like they should trip an agent but shouldn't, plus diffs that the agent has historically missed. `must_not_catch` is where most of the signal lives — that's the noise floor.
+1. **Replay against a real model.** Drop `RecordedAgent`, run the production agents against the fixtures with cassettes, and commit the captured findings. The framework is unchanged; only the recording source moves. This is the work that backs ADR-0001.
+2. **Adversarial fixtures.** Add diffs that *look* like they should trip an agent but shouldn't, plus diffs the agent has historically missed. `must_not_catch` is where most of the real signal lives — that's the noise floor.
 
 ## Fixture catalogue
 

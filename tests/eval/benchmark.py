@@ -28,9 +28,24 @@ ALL_AGENTS: tuple[AgentName, ...] = ("quality", "tests", "performance", "securit
 
 @dataclass(frozen=True)
 class LabelRule:
+    """A predicate over `Finding`. At least one of `file_pattern` /
+    `title_keywords` must be set, OR `severity_min` must be above INFO —
+    a rule with no filters would match every finding silently.
+    """
+
     severity_min: Severity = Severity.INFO
     file_pattern: str = ""
     title_keywords: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        has_file = bool(self.file_pattern)
+        has_keywords = bool(self.title_keywords)
+        has_severity = self.severity_min > Severity.INFO
+        if not (has_file or has_keywords or has_severity):
+            raise ValueError(
+                "LabelRule needs at least one filter "
+                "(file_pattern, title_keywords, or severity_min > info)"
+            )
 
     def matches(self, finding: Finding) -> bool:
         if finding.severity < self.severity_min:
