@@ -43,11 +43,15 @@ class CachingAgent:
         hit = self._cache.get(key)
         if hit is not None:
             _log.info("cache_hit", agent=self.agent_name, key=key[:12])
+            # Cost is zeroed because the run-level total only sums what the
+            # *current* invocation paid. The cache_hit flag preserves the
+            # signal that this finding came from a prior call.
             return AgentResult(
                 findings=list(hit.findings),
                 cost_usd=0.0,
                 prompt_tokens=0,
                 completion_tokens=0,
+                cache_hit=True,
             )
         result = await self._inner.run(pr=pr, files_changed=files_changed, diff=diff)
         self._cache.put(key, result)

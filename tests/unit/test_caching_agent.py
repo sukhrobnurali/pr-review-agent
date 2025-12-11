@@ -59,17 +59,19 @@ async def test_cache_miss_calls_inner_and_writes(tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_cache_hit_skips_inner_and_zeroes_cost(tmp_path: Path) -> None:
+async def test_cache_hit_skips_inner_zeroes_cost_and_flags_hit(tmp_path: Path) -> None:
     cache = FileCache(tmp_path)
     inner = _stub_agent()
     wrapped = CachingAgent(inner, cache)
     pr = _pr()
-    await wrapped.run(pr=pr, files_changed=[], diff="")
+    first = await wrapped.run(pr=pr, files_changed=[], diff="")
+    assert first.cache_hit is False
     inner.run.reset_mock()  # type: ignore[attr-defined]
 
     out = await wrapped.run(pr=pr, files_changed=[], diff="")
     inner.run.assert_not_awaited()  # type: ignore[attr-defined]
     assert out.cost_usd == 0.0
+    assert out.cache_hit is True
     assert len(out.findings) == 1
 
 

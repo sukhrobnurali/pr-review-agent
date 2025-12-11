@@ -34,6 +34,7 @@ class AgentResult(BaseModel):
     cost_usd: float
     prompt_tokens: int
     completion_tokens: int
+    cache_hit: bool = False
 
 
 @runtime_checkable
