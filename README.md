@@ -114,14 +114,13 @@ Full example: [`examples/library-usage.py`](examples/library-usage.py).
 
 The architecture is the differentiator. Four specialists in parallel produce far better signal than one prompt asked to do everything — and the prompts are flat Markdown files you can iterate on without touching code.
 
-## What it costs
+## Cost & latency
 
-500-line PR, all four agents fanning out, default `gpt-4o-mini`:
+Per-review cost depends on the diff size and which models the supervisor selects. The hard ceiling is enforced in CI: a 500-line synthetic PR fanned out across all four specialists must come in under **$0.50** and **90 seconds**, parametrized over OpenAI / Anthropic / Ollama — see [`tests/integration/test_cost_under_cap.py`](tests/integration/test_cost_under_cap.py).
 
-- **~$0.02** per review on OpenAI's cheap tier
-- **~10–25 seconds** wall-clock (one model call's worth, not four — parallel fan-out)
+In practice the cost is dominated by input tokens (the diff itself), so a small PR on `gpt-4o-mini` is typically a fraction of a cent. The composer renders the actual cost in the comment footer of every review, so the number is never hidden.
 
-The cost / latency gate is enforced at < $0.50 / < 90s in [`tests/integration/test_cost_under_cap.py`](tests/integration/test_cost_under_cap.py), parametrized over OpenAI, Anthropic, and Ollama.
+Wall-clock latency is bounded by the slowest single specialist call rather than the sum, because the four agents fan out in parallel — see [architecture.md → graph](docs/architecture.md#graph) and [`tests/integration/test_parallel_fanout.py`](tests/integration/test_parallel_fanout.py).
 
 ## Configuration
 
