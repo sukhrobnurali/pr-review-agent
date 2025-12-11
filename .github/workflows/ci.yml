@@ -32,4 +32,7 @@ jobs:
         run: uv run mypy src/
 
       - name: Tests
-        run: uv run pytest -m "not eval" --cov=src/pr_review_agent --cov-report=term-missing
+        run: uv run pytest -m "not eval" --cov=src/pr_review_agent --cov-report=term-missing --cov-fail-under=80
+
+      - name: Eval benchmark
+        run: uv run pytest -m eval -s --no-cov
