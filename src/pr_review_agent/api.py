@@ -57,6 +57,16 @@ def _resolve_api_key(provider: str, override: str | None) -> str | None:
     return os.environ.get(env_var)
 
 
+def _require_api_key(settings: Settings, override: str | None) -> str:
+    resolved = _resolve_api_key(settings.provider, override)
+    if resolved is None:
+        env_var = "OPENAI_API_KEY" if settings.provider == "openai" else "ANTHROPIC_API_KEY"
+        raise RuntimeError(
+            f"no API key for {settings.provider}; pass api_key= or set {env_var}"
+        )
+    return resolved
+
+
 async def review_pr(
     pr_ref: str,
     *,
@@ -70,10 +80,7 @@ async def review_pr(
     Does not post a comment — caller decides what to do with `outcome.final_comment`.
     """
     settings = settings or Settings()
-    resolved_key = _resolve_api_key(settings.provider, api_key)
-    if resolved_key is None:
-        env_var = "OPENAI_API_KEY" if settings.provider == "openai" else "ANTHROPIC_API_KEY"
-        raise RuntimeError(f"no API key for {settings.provider}; pass api_key= or set {env_var}")
+    resolved_key = _require_api_key(settings, api_key)
 
     owner, repo, number = parse_pr_ref(pr_ref)
     token = github_token or os.environ.get("GITHUB_TOKEN") or ""
@@ -100,10 +107,7 @@ async def review_diff(
 ) -> ReviewOutcome:
     """Run the review pipeline against a local unified diff (no GitHub call)."""
     settings = settings or Settings()
-    resolved_key = _resolve_api_key(settings.provider, api_key)
-    if resolved_key is None:
-        env_var = "OPENAI_API_KEY" if settings.provider == "openai" else "ANTHROPIC_API_KEY"
-        raise RuntimeError(f"no API key for {settings.provider}; pass api_key= or set {env_var}")
+    resolved_key = _require_api_key(settings, api_key)
 
     pr = pr or PRMetadata(
         owner="local",

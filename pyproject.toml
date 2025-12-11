@@ -95,7 +95,8 @@ source = ["src/pr_review_agent"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 80
+# fail_under is enforced in CI via --cov-fail-under (see .github/workflows/ci.yml).
+# Local `pytest --cov` should report numbers without failing.
 show_missing = true
 exclude_lines = [
     "pragma: no cover",

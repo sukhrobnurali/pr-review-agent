@@ -11,7 +11,7 @@ is faked.
 
 Latency is the part most easily faked, so the simulated per-call latency
 is set high enough that a serial pipeline would blow the cap. Four agents
-at SIMULATED_LATENCY_S each, run serially, would take ~4× that. Run in
+at SIMULATED_LATENCY_S each, run serially, would take ~4x that. Run in
 parallel, total wall-clock should stay close to one call's worth — the
 cap test is what proves fan-out actually fans out.
 """
@@ -39,7 +39,7 @@ INPUT_TOKENS_PER_LINE = 6
 OUTPUT_TOKENS_FIXED = 250
 
 # Simulated per-call delay. Big enough that a serial pipeline (4 agents
-# × SIMULATED_LATENCY_S = 4s) would breach the parallel-only cap below;
+# x SIMULATED_LATENCY_S = 4s) would breach the parallel-only cap below;
 # small enough that the test is still fast.
 SIMULATED_LATENCY_S = 1.0
 # Tighter than LATENCY_CAP_S so this test actually proves parallel fan-out

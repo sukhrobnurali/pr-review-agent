@@ -9,7 +9,6 @@ when every selected agent reports a cache hit.
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from typing import Any
 

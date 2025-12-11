@@ -8,7 +8,8 @@ import pytest
 from typer.testing import CliRunner
 
 from pr_review_agent._runner import ReviewOutcome
-from pr_review_agent.cli import app, parse_pr_ref
+from pr_review_agent.api import parse_pr_ref
+from pr_review_agent.cli import app
 
 runner = CliRunner()
 
