@@ -31,7 +31,7 @@ LATENCY_CAP_S = 90.0
 LINES = 500
 INPUT_TOKENS_PER_LINE = 6
 OUTPUT_TOKENS_FIXED = 250
-SIMULATED_LATENCY_S = 0.05  # stand-in for ~10–20s real API call
+SIMULATED_LATENCY_S = 0.05  # stand-in for ~10-20s real API call
 
 
 def _synthetic_diff(lines: int = LINES) -> str:
