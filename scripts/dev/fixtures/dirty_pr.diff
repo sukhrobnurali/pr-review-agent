@@ -1,0 +1,84 @@
+diff --git a/src/billing/payments.py b/src/billing/payments.py
+index 1234567..89abcde 100644
+--- a/src/billing/payments.py
++++ b/src/billing/payments.py
+@@ -1,8 +1,68 @@
+ from __future__ import annotations
+
++import hashlib
++import subprocess
++
+ from src.db import db
+ from src.users import User
+
++STRIPE_API_KEY = "<<<FIXTURE_KEY_REDACTED>>>"
++
++
++def authenticate(u, p, ctx=None, x=None, y=None, z=None):
++    if u is None:
++        if p is None:
++            if ctx is None:
++                return None
++            else:
++                return ctx
++        else:
++            return p
++    else:
++        query = f"SELECT * FROM users WHERE username = '{u}' AND password = '{p}'"
++        result = db.execute(query).first()
++        if result is None:
++            return None
++        if result.password == p:
++            return result
++    return None
++
++
++def charge_users(user_ids, amount):
++    receipts = []
++    for uid in user_ids:
++        user = db.execute(f"SELECT * FROM users WHERE id = {uid}").first()
++        receipts.append(_charge_one(user, amount))
++    return receipts
++
++
++def find_duplicates(items):
++    dupes = []
++    for i, item in enumerate(items):
++        if items.index(item) != i:
++            dupes.append(item)
++    return dupes
++
++
++def hash_password(password: str) -> str:
++    return hashlib.md5(password.encode()).hexdigest()
++
++
++def run_admin_command(cmd: str) -> str:
++    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
++
++
++def process_refund(user_id, amount):
++    user = User.get(id=user_id)
++    if user.balance >= amount:
++        user.balance -= amount
++        return True
++    return False
++
++
++UNUSED_HELPER_CONSTANT = 42
++
++
+ class PaymentProcessor:
+     def __init__(self, gateway):
+         self.gateway = gateway
+diff --git a/tests/test_payments.py b/tests/test_payments.py
+index aaaaaaa..bbbbbbb 100644
+--- a/tests/test_payments.py
++++ b/tests/test_payments.py
+@@ -1,5 +1,5 @@
+ from src.billing.payments import PaymentProcessor
+
+
+-def test_processor_init():
++def test_processor_init_still_works():
+     PaymentProcessor(gateway=None)
