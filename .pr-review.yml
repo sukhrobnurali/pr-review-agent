@@ -1,0 +1,25 @@
+# Config used when the agent reviews its own PRs (.github/workflows/self-review.yml).
+# Kept lean on purpose - this file doubles as a worked example of a real config.
+
+provider: openai
+model: gpt-4o-mini
+
+agents:
+  enabled: [quality, tests, performance, security]
+  models:
+    security: gpt-4o   # noisier specialist; bigger model is worth the cost
+
+severity_threshold: medium
+
+include_paths:
+  - "src/**/*.py"
+  - "tests/**/*.py"
+  - "prompts/**/*.md"
+  - "action/**"
+  - "*.toml"
+
+exclude_paths:
+  - "**/__pycache__/**"
+  - "**/*.generated.*"
+  - "tests/cassettes/**"
+  - "tests/eval/fixtures/**"
