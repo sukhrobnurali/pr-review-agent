@@ -61,9 +61,7 @@ def _require_api_key(settings: Settings, override: str | None) -> str:
     resolved = _resolve_api_key(settings.provider, override)
     if resolved is None:
         env_var = "OPENAI_API_KEY" if settings.provider == "openai" else "ANTHROPIC_API_KEY"
-        raise RuntimeError(
-            f"no API key for {settings.provider}; pass api_key= or set {env_var}"
-        )
+        raise RuntimeError(f"no API key for {settings.provider}; pass api_key= or set {env_var}")
     return resolved
 
 

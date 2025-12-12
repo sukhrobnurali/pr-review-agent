@@ -85,9 +85,7 @@ def test_severity_threshold_filters_low_findings() -> None:
 
 
 def test_path_glob_filters_apply(tmp_path: Path) -> None:
-    s = Settings.model_validate(
-        {"exclude_paths": ["**/vendor/**", "**/*.lock"]}
-    )
+    s = Settings.model_validate({"exclude_paths": ["**/vendor/**", "**/*.lock"]})
     assert s.path_included("src/auth.py") is True
     assert s.path_included("vendor/lib/foo.py") is False
     assert s.path_included("uv.lock") is False

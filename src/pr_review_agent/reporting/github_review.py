@@ -12,9 +12,7 @@ class _Client(Protocol):
 
     async def post_review(self, owner: str, repo: str, number: int, body: str) -> int: ...
 
-    async def update_review(
-        self, owner: str, repo: str, comment_id: int, body: str
-    ) -> None: ...
+    async def update_review(self, owner: str, repo: str, comment_id: int, body: str) -> None: ...
 
 
 def _ensure_marker(body: str) -> str:

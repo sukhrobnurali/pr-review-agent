@@ -139,9 +139,7 @@ async def main_async() -> int:
     pr = await client.fetch_pr(owner, repo, number)
     diff = await client.fetch_diff(owner, repo, number)
 
-    outcome = await run_review(
-        settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache
-    )
+    outcome = await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache)
 
     posted_id = await post_or_update_review(
         client,

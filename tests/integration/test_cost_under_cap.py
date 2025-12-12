@@ -110,9 +110,7 @@ def _build_agents(model_id: str, input_tokens: int) -> dict[str, Any]:
         ("ollama", "ollama-local"),
     ],
 )
-async def test_500_line_pr_under_cost_and_latency_cap(
-    provider: str, model_id: str
-) -> None:
+async def test_500_line_pr_under_cost_and_latency_cap(provider: str, model_id: str) -> None:
     diff = _synthetic_diff()
     agents = _build_agents(model_id, input_tokens=LINES * INPUT_TOKENS_PER_LINE)
     graph = build_graph(agents)
@@ -139,14 +137,14 @@ async def test_500_line_pr_under_cost_and_latency_cap(
     n_agents = len(selected)
 
     assert selected, f"{provider}: supervisor selected no agents"
-    assert cost < COST_CAP_USD, (
-        f"{provider}/{model_id}: 500-line PR cost ${cost:.4f} >= ${COST_CAP_USD:.2f}"
-    )
+    assert (
+        cost < COST_CAP_USD
+    ), f"{provider}/{model_id}: 500-line PR cost ${cost:.4f} >= ${COST_CAP_USD:.2f}"
 
     # Hard cap from §12 — never breach this regardless of pipeline shape.
-    assert elapsed < LATENCY_CAP_S, (
-        f"{provider}/{model_id}: wall-clock {elapsed:.2f}s >= {LATENCY_CAP_S}s"
-    )
+    assert (
+        elapsed < LATENCY_CAP_S
+    ), f"{provider}/{model_id}: wall-clock {elapsed:.2f}s >= {LATENCY_CAP_S}s"
 
     # Tight cap proving parallel fan-out: a serial pipeline of n_agents calls
     # at SIMULATED_LATENCY_S each would take n_agents * SIMULATED_LATENCY_S,

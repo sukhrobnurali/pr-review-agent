@@ -20,9 +20,7 @@ from pr_review_agent.state import PRMetadata
         ("  acme/widgets#7  ", ("acme", "widgets", 7)),
     ],
 )
-def test_parse_pr_ref_accepts_short_and_url(
-    ref: str, expected: tuple[str, str, int]
-) -> None:
+def test_parse_pr_ref_accepts_short_and_url(ref: str, expected: tuple[str, str, int]) -> None:
     assert api.parse_pr_ref(ref) == expected
 
 
@@ -55,9 +53,7 @@ async def test_review_diff_passes_diff_through_to_runner() -> None:
 
     async def fake_run(**kwargs: Any) -> ReviewOutcome:
         captured.update(kwargs)
-        return ReviewOutcome(
-            final_comment="ok", cost_usd=0.0, selected_agents=[], findings_count=0
-        )
+        return ReviewOutcome(final_comment="ok", cost_usd=0.0, selected_agents=[], findings_count=0)
 
     with patch("pr_review_agent.api.run_review", side_effect=fake_run):
         out = await api.review_diff(diff="some diff", title="my change", api_key="k")
@@ -82,9 +78,7 @@ async def test_review_pr_fetches_then_runs() -> None:
 
     async def fake_run(**kwargs: Any) -> ReviewOutcome:
         captured.update(kwargs)
-        return ReviewOutcome(
-            final_comment="x", cost_usd=0.0, selected_agents=[], findings_count=0
-        )
+        return ReviewOutcome(final_comment="x", cost_usd=0.0, selected_agents=[], findings_count=0)
 
     with (
         patch.object(api.GitHubClient, "from_token", return_value=fake_client),

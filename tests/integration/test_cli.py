@@ -116,9 +116,7 @@ def test_review_with_only_filters_agents(
     assert captured["enabled"] == ["quality", "tests"]
 
 
-def test_review_missing_api_key_errors(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_review_missing_api_key_errors(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     diff = _diff_file(tmp_path)

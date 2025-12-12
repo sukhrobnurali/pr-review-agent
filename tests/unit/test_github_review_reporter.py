@@ -18,9 +18,7 @@ class _FakeClient:
 @pytest.mark.asyncio
 async def test_marker_is_appended_when_missing() -> None:
     client = _FakeClient(existing_id=None)
-    cid = await post_or_update_review(
-        client, owner="o", repo="r", number=1, body="hello"
-    )
+    cid = await post_or_update_review(client, owner="o", repo="r", number=1, body="hello")
     assert cid == 999
     posted_body = client.post_review.call_args.kwargs["body"]
     assert MARKER in posted_body
@@ -39,9 +37,7 @@ async def test_marker_not_duplicated() -> None:
 @pytest.mark.asyncio
 async def test_existing_comment_is_updated_not_recreated() -> None:
     client = _FakeClient(existing_id=42)
-    cid = await post_or_update_review(
-        client, owner="o", repo="r", number=1, body="hello"
-    )
+    cid = await post_or_update_review(client, owner="o", repo="r", number=1, body="hello")
     assert cid == 42
     client.post_review.assert_not_called()
     client.update_review.assert_called_once()
