@@ -35,6 +35,7 @@ dependencies = [
     "pyyaml~=6.0.2",
     "structlog~=24.4.0",
     "typer~=0.13.0",
+    "click~=8.1.7",  # typer 0.13.x calls make_metavar() with the click<8.2 signature
     "jinja2~=3.1.4",
 ]
 

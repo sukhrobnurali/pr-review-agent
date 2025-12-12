@@ -27,6 +27,14 @@ from pr_review_agent.tools.github import GitHubClient
 
 app = typer.Typer(add_completion=False, no_args_is_help=True, help="Multi-agent PR reviewer")
 
+
+@app.callback()
+def _root() -> None:
+    """Force typer to treat `review` as a real subcommand instead of
+    collapsing the single-command app, so the documented invocation
+    `pr-review-agent review <ref>` keeps working."""
+
+
 _VALID_AGENTS: tuple[AgentName, ...] = ("quality", "tests", "performance", "security")
 
 
@@ -63,17 +71,13 @@ def review(
     pr_ref: str | None = typer.Argument(
         None, help="owner/repo#N or PR URL; omit when using --diff-file"
     ),
-    config: Path | None = typer.Option(
-        None, "--config", "-c", help="path to .pr-review.yml"
-    ),
+    config: Path | None = typer.Option(None, "--config", "-c", help="path to .pr-review.yml"),
     provider: str | None = typer.Option(
         None, "--provider", help="override provider (openai|anthropic)"
     ),
     model: str | None = typer.Option(None, "--model", help="override default model"),
     only: str | None = typer.Option(None, "--only", help="comma-separated subset of agents"),
-    api_key: str | None = typer.Option(
-        None, "--api-key", help="LLM API key (else read from env)"
-    ),
+    api_key: str | None = typer.Option(None, "--api-key", help="LLM API key (else read from env)"),
     token: str | None = typer.Option(
         None, "--token", help="GitHub token (else read from GITHUB_TOKEN)"
     ),
@@ -101,9 +105,7 @@ def review(
         raise typer.Exit(code=2)
 
     if diff_file is not None:
-        outcome = asyncio.run(
-            _review_local_diff(diff_file, title, settings, resolved_key, cache)
-        )
+        outcome = asyncio.run(_review_local_diff(diff_file, title, settings, resolved_key, cache))
         _print_outcome(outcome, dry_run=True, posted_id=None)
         return
 
@@ -161,9 +163,7 @@ async def _review_real_pr(
     client = GitHubClient.from_token(gh_token or "")
     pr = await client.fetch_pr(owner, repo, number)
     diff = await client.fetch_diff(owner, repo, number)
-    outcome = await run_review(
-        settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache
-    )
+    outcome = await run_review(settings=settings, pr=pr, diff=diff, api_key=api_key, cache=cache)
     posted_id = await post_or_update_review(
         client,
         owner=owner,
