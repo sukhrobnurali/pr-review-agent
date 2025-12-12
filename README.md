@@ -183,7 +183,7 @@ Full schema: [`docs/configuration.md`](docs/configuration.md).
 | [`docs/configuration.md`](docs/configuration.md) | full `.pr-review.yml` reference, provider switching, path filters |
 | [`docs/prompts.md`](docs/prompts.md) | prompt format, output schema, iteration recipe |
 | [`docs/benchmarks.md`](docs/benchmarks.md) | eval methodology and v0.1.0 baseline numbers |
-| [`docs/decisions/`](docs/decisions/) | architectural decision records |
+| [`docs/landscape.md`](docs/landscape.md) | competitor survey and where this project fits |
 
 ## Hacking
 

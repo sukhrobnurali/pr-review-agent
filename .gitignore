@@ -28,12 +28,13 @@ htmlcov/
 coverage.xml
 *.cover
 
-# Type checking
+# Type checking / linting
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .pyre/
 .pytype/
+.ruff_cache/
 
 # IDE
 .vscode/
