@@ -102,6 +102,38 @@ asyncio.run(main())
 
 Full example: [`examples/library-usage.py`](examples/library-usage.py).
 
+## Sample output
+
+Excerpt from a real review on a deliberately bad `payments.py` — `gpt-4o-mini`,
+13 findings, total run cost **$0.0016**:
+
+> **TL;DR**
+> - **high** (security): `src/billing/payments.py:12` — SQL injection in `authenticate`
+> - **high** (security): `src/billing/payments.py:22` — SQL injection in `charge_users`
+> - **high** (performance): `src/billing/payments.py:30` — N+1 query in `charge_users`
+> - **high** (security): `src/billing/payments.py:40` — command injection in `run_admin_command`
+> - **high** (tests): no tests for `authenticate`, `charge_users`, `process_refund`
+>
+> ### High
+>
+> **SQL injection in `authenticate`** — `src/billing/payments.py:12` _[security]_
+> `u` and `p` are interpolated directly into the SQL string. Use parameterised queries.
+>
+> **N+1 query in `charge_users`** — `src/billing/payments.py:30` _[performance]_
+> The loop fetches each user with a separate `SELECT`. Use `WHERE id IN (...)` once.
+>
+> ### Medium
+>
+> **Weak crypto (MD5)** — `src/billing/payments.py:34` _[security]_
+> MD5 for password hashing is broken; use bcrypt or Argon2.
+>
+> ---
+> _13 findings • run cost: $0.0016_
+
+The full unedited comment is at [`scripts/dev/last_review.md`](scripts/dev/last_review.md).
+Specialist scoping is enforced in the prompts — security flags injection, quality
+flags nesting, tests flags missing coverage, none of them step on each other.
+
 ## Why another PR reviewer
 
 | | |
