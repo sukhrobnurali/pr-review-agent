@@ -17,6 +17,7 @@ include_paths:
   - "prompts/**/*.md"
   - "action/**"
   - "*.toml"
+  - "demo/**/*.py"
 
 exclude_paths:
   - "**/__pycache__/**"
