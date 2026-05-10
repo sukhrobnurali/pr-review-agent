@@ -4,6 +4,7 @@
 
 Ships as a **GitHub Action**, a **CLI**, and a **Python library**. Model-agnostic — runs against OpenAI, Anthropic, or any OpenAI-compatible endpoint (Ollama, vLLM, internal gateway). Open-source, self-hostable, no data egress.
 
+[![GitHub Marketplace](https://img.shields.io/badge/marketplace-Multi--Agent%20PR%20Reviewer-blue?logo=github)](https://github.com/marketplace/actions/multi-agent-pr-reviewer)
 [![CI](https://github.com/sukhrobnurali/pr-review-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/sukhrobnurali/pr-review-agent/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python: 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
