@@ -105,35 +105,21 @@ Full example: [`examples/library-usage.py`](examples/library-usage.py).
 
 ## Sample output
 
-Excerpt from a real review on a deliberately bad `payments.py` — `gpt-4o-mini`,
-13 findings, total run cost **$0.0016**:
+The agent reviewing a real PR on this repo — `gpt-4o-mini`, **15 findings, run
+cost $0.0089**, posted by `github-actions[bot]` on PR open:
 
-> **TL;DR**
-> - **high** (security): `src/billing/payments.py:12` — SQL injection in `authenticate`
-> - **high** (security): `src/billing/payments.py:22` — SQL injection in `charge_users`
-> - **high** (performance): `src/billing/payments.py:30` — N+1 query in `charge_users`
-> - **high** (security): `src/billing/payments.py:40` — command injection in `run_admin_command`
-> - **high** (tests): no tests for `authenticate`, `charge_users`, `process_refund`
->
-> ### High
->
-> **SQL injection in `authenticate`** — `src/billing/payments.py:12` _[security]_
-> `u` and `p` are interpolated directly into the SQL string. Use parameterised queries.
->
-> **N+1 query in `charge_users`** — `src/billing/payments.py:30` _[performance]_
-> The loop fetches each user with a separate `SELECT`. Use `WHERE id IN (...)` once.
->
-> ### Medium
->
-> **Weak crypto (MD5)** — `src/billing/payments.py:34` _[security]_
-> MD5 for password hashing is broken; use bcrypt or Argon2.
->
-> ---
-> _13 findings • run cost: $0.0016_
+![Bot review comment on a GitHub PR with 15 findings across security, quality, tests, and performance](docs/img/sample-review-1.png)
 
-The full unedited comment is at [`scripts/dev/last_review.md`](scripts/dev/last_review.md).
-Specialist scoping is enforced in the prompts — security flags injection, quality
-flags nesting, tests flags missing coverage, none of them step on each other.
+![Run cost footer: 15 findings, run cost $0.0089](docs/img/sample-review-2.png)
+
+Live demo PR: [`#1` (deliberately bad, do not merge)](https://github.com/sukhrobnurali/pr-review-agent/pull/1).
+Raw Markdown of an earlier fixture run is at [`scripts/dev/last_review.md`](scripts/dev/last_review.md)
+if you want to see exactly what the composer emits.
+
+Specialist scoping is enforced in the prompts — security flags injection,
+quality flags nesting, tests flags missing coverage; none of them step on each
+other. The comment updates idempotently via the `<!-- pr-review-agent:run -->`
+HTML marker, so re-runs on the same PR overwrite instead of duplicating.
 
 ## Why another PR reviewer
 
