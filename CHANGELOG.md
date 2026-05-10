@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1 - 2026-05-10
+
+### Changed
+
+- Rename Action display title to **"Multi-Agent PR Reviewer"** to clear a
+  GitHub Marketplace name collision. Repo URL, package name, CLI command, and
+  `uses:` reference are unchanged - only the Marketplace listing title.
+
 ## v0.1.0 - 2025-12-12
 
 First release.

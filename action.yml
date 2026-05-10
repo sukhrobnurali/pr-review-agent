@@ -1,5 +1,5 @@
-name: PR Review Agent
-description: Multi-agent specialist reviewer (security, performance, tests, quality) for pull requests.
+name: Multi-Agent PR Reviewer
+description: Specialist agents (security, performance, tests, quality) review a PR in parallel via LangGraph.
 author: Sukhrob Nurali
 branding:
   icon: git-pull-request
