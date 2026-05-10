@@ -1,10 +1,17 @@
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
 class PathTraversalError(ValueError):
     pass
+
+
+def _is_absolute_anywhere(p: str) -> bool:
+    # Path.is_absolute() only recognises the *current* platform's flavour, so
+    # on Linux 'C:\\Windows\\...' looks like a relative single-component name
+    # and on Windows '/etc/passwd' looks like rootless. Check both flavours.
+    return PureWindowsPath(p).is_absolute() or PurePosixPath(p).is_absolute()
 
 
 def safe_read_text(repo_root: Path | str, relative_path: str) -> str:
@@ -18,7 +25,7 @@ def safe_read_text(repo_root: Path | str, relative_path: str) -> str:
     """
     root = Path(repo_root).resolve(strict=False)
     rel = Path(relative_path)
-    if rel.is_absolute():
+    if _is_absolute_anywhere(relative_path):
         raise PathTraversalError(f"absolute paths rejected: {relative_path}")
 
     candidate = (root / rel).resolve(strict=False)
